@@ -16,7 +16,7 @@ jobs:
           sudo apt install -y mingw-w64
           i686-w64-mingw32-c++ -o decryptcpuu.exe decryptcpuu.cpp -Wall -static
       - name: Upload binary as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifactt@v4.3.6
         with:
           name: binary
           path: decryptcpuu.exe
