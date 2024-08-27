@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
 
         final = CryptDecrypt(phDoubleKey, 0, TRUE, 0, iniEncpasswd.data(), (DWORD *)&iniEncPassLen);
         // Convert UTF-16LE to UTF-8
-        int utf8Length = WideCharToMultiByte(CP_UTF8, 0, reinterpret_cast<LPCWCH>(iniEncpasswd.data()), -1, NULL, 0, NULL, NULL);
+        int utf8Length = WideCharToMultiByte(CP_UTF8, 0, reinterpret_cast<LPCWCH>(iniEncpasswd.data()), -1, NULL, 0, NULL, NULL) / 2;
         std::vector<char> utf8String(utf8Length);
         WideCharToMultiByte(CP_UTF8, 0, reinterpret_cast<LPCWCH>(iniEncpasswd.data()), -1, utf8String.data(), utf8Length, NULL, NULL);
 
