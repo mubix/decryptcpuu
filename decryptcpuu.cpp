@@ -258,9 +258,27 @@ int main(int argc, char *argv[])
         printf("Did CryptImportKey on the Pub Key work? %d\n", final);
 
         final = CryptDecrypt(phDoubleKey, 0, TRUE, 0, iniEncpasswd.data(), (DWORD *)&iniEncPassLen);
-        iniEncpasswd[iniEncPassLen] = '\0';
+        // Ensure null-termination of the decrypted data
+        iniEncpasswd.push_back(0);
+
+        // Print the decrypted password
         printf("Decrypted password: %s\n", reinterpret_cast<char*>(iniEncpasswd.data()));
-        // Print the length as well for verification
+
+        // Print each character of the decrypted data (including non-printable characters)
+        printf("Decrypted data (char by char): ");
+        for (size_t i = 0; i < iniEncPassLen; ++i) {
+            printf("%c", iniEncpasswd[i]);
+        }
+        printf("\n");
+
+        // Print the hexadecimal representation of the decrypted data
+        printf("Decrypted data (hex): ");
+        for (size_t i = 0; i < iniEncPassLen; ++i) {
+            printf("%02X ", iniEncpasswd[i]);
+        }
+        printf("\n");
+
+        // Print the length of the decrypted data
         printf("Decrypted length: %zu\n", iniEncPassLen);
 
     } catch (const std::exception& e) {
