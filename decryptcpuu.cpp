@@ -258,17 +258,24 @@ int main(int argc, char *argv[])
         printf("Did CryptImportKey on the Pub Key work? %d\n", final);
 
         final = CryptDecrypt(phDoubleKey, 0, TRUE, 0, iniEncpasswd.data(), (DWORD *)&iniEncPassLen);
+
+        // Calculate the number of wide characters
+        size_t wideCharCount = iniEncPassLen / sizeof(wchar_t);
+
         // Convert UTF-16LE to UTF-8
-        int utf8Length = WideCharToMultiByte(CP_UTF8, 0, reinterpret_cast<LPCWCH>(iniEncpasswd.data()), -1, NULL, 0, NULL, NULL) / 2;
+        int utf8Length = WideCharToMultiByte(CP_UTF8, 0, reinterpret_cast<LPCWCH>(iniEncpasswd.data()), wideCharCount, NULL, 0, NULL, NULL);
         std::vector<char> utf8String(utf8Length);
-        WideCharToMultiByte(CP_UTF8, 0, reinterpret_cast<LPCWCH>(iniEncpasswd.data()), -1, utf8String.data(), utf8Length, NULL, NULL);
+        WideCharToMultiByte(CP_UTF8, 0, reinterpret_cast<LPCWCH>(iniEncpasswd.data()), wideCharCount, utf8String.data(), utf8Length, NULL, NULL);
+
+        // Null-terminate the UTF-8 string
+        utf8String.push_back('\0');
 
         // Print the decrypted password
         printf("Decrypted password: %s\n", utf8String.data());
 
         // Print each UTF-16LE character (for debugging)
         printf("Decrypted data (UTF-16LE chars): ");
-        for (size_t i = 0; i < iniEncPassLen / 2; ++i) {
+        for (size_t i = 0; i < wideCharCount; ++i) {
             wchar_t ch = reinterpret_cast<wchar_t*>(iniEncpasswd.data())[i];
             printf("%lc", ch);
         }
@@ -280,6 +287,11 @@ int main(int argc, char *argv[])
             printf("%02X ", iniEncpasswd[i]);
         }
         printf("\n");
+
+        // Print lengths for verification
+        printf("iniEncPassLen: %zu\n", iniEncPassLen);
+        printf("wideCharCount: %zu\n", wideCharCount);
+        printf("utf8Length: %d\n", utf8Length);
 
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
