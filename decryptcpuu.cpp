@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
 
         HCRYPTKEY hPubKey = 0;
         dwFlags = 0;
-        HCRYPTKEY phKey = 0;
+        phKey = 0;
         final = CryptImportKey(phProv, pbEncKey, dwDataLen, hPubKey, dwFlags, &phKey);
         printf("Did CryptImportKey work? %d\n", final);
 
