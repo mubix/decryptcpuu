@@ -258,28 +258,28 @@ int main(int argc, char *argv[])
         printf("Did CryptImportKey on the Pub Key work? %d\n", final);
 
         final = CryptDecrypt(phDoubleKey, 0, TRUE, 0, iniEncpasswd.data(), (DWORD *)&iniEncPassLen);
-        // Ensure null-termination of the decrypted data
-        iniEncpasswd.push_back(0);
+        // Convert UTF-16LE to UTF-8
+        int utf8Length = WideCharToMultiByte(CP_UTF8, 0, reinterpret_cast<LPCWCH>(iniEncpasswd.data()), -1, NULL, 0, NULL, NULL);
+        std::vector<char> utf8String(utf8Length);
+        WideCharToMultiByte(CP_UTF8, 0, reinterpret_cast<LPCWCH>(iniEncpasswd.data()), -1, utf8String.data(), utf8Length, NULL, NULL);
 
         // Print the decrypted password
-        printf("Decrypted password: %s\n", reinterpret_cast<char*>(iniEncpasswd.data()));
+        printf("Decrypted password: %s\n", utf8String.data());
 
-        // Print each character of the decrypted data (including non-printable characters)
-        printf("Decrypted data (char by char): ");
-        for (size_t i = 0; i < iniEncPassLen; ++i) {
-            printf("%c", iniEncpasswd[i]);
+        // Print each UTF-16LE character (for debugging)
+        printf("Decrypted data (UTF-16LE chars): ");
+        for (size_t i = 0; i < iniEncPassLen / 2; ++i) {
+            wchar_t ch = reinterpret_cast<wchar_t*>(iniEncpasswd.data())[i];
+            printf("%lc", ch);
         }
         printf("\n");
 
-        // Print the hexadecimal representation of the decrypted data
+        // Print hexadecimal representation
         printf("Decrypted data (hex): ");
         for (size_t i = 0; i < iniEncPassLen; ++i) {
             printf("%02X ", iniEncpasswd[i]);
         }
         printf("\n");
-
-        // Print the length of the decrypted data
-        printf("Decrypted length: %zu\n", iniEncPassLen);
 
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
