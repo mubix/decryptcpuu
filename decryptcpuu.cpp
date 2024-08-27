@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <vector>
 #include <stdexcept>
+#include <cstdio>
 
 // stolen from https://stackoverflow.com/a/27173017
 static void print_buf(const char* title, const unsigned char* buf, size_t buf_len)
@@ -38,7 +39,7 @@ int main(int argc, char *argv[])
         printf("Did CryptAcquireContext work? %d\n", final);
 
         dwFlags = 0;
-        HCRYPTKEY hKey = NULL;
+        HCRYPTKEY hKey = 0;
         ALG_ID Algid = CALG_SHA_512;
         HCRYPTHASH phHash;
 
@@ -184,7 +185,7 @@ int main(int argc, char *argv[])
 
         dwFlags = 0;
         DWORD dwDataLen = sizeof(pbEncKey);
-        final = CryptDecrypt(phKey, NULL, TRUE, dwFlags, pbEncKey, &dwDataLen);
+        final = CryptDecrypt(phKey, 0, TRUE, dwFlags, pbEncKey, &dwDataLen);
         //printf("GetLastError Code: %d\n", GetLastError());
 
         printf("Did it decrypt? %d\n", final);
@@ -206,9 +207,9 @@ int main(int argc, char *argv[])
         final = CryptAcquireContextA(&phProv, szContainer, szProvider, dwProvType, dwFlags);
         printf("Did CryptAcquireContext work? %d\n", final);
 
-        HCRYPTKEY hPubKey = NULL;
+        HCRYPTKEY hPubKey = 0;
         dwFlags = 0;
-        phKey = NULL;
+        HCRYPTKEY phKey = 0;
         final = CryptImportKey(phProv, pbEncKey, dwDataLen, hPubKey, dwFlags, &phKey);
         printf("Did CryptImportKey work? %d\n", final);
 
@@ -253,11 +254,11 @@ int main(int argc, char *argv[])
         print_buf("\nEncrypted Password:", iniEncpasswd.data(), iniEncpasswd.size());
         HCRYPTKEY phDoubleKey;
         final = CryptImportKey(phProv, iniPubkey.data(), iniPubkey.size(), phKey, 0, &phDoubleKey);
-        printf("GetLastError Code: %d\n", GetLastError());
+        printf("GetLastError Code: %lu\n", GetLastError());
         printf("Did CryptImportKey on the Pub Key work? %d\n", final);
 
-        final = CryptDecrypt(phDoubleKey, NULL, TRUE, 0, iniEncpasswd.data(), (DWORD *)&iniEncPassLen);
-        printf("%ls\n", iniEncpasswd.data());
+        final = CryptDecrypt(phDoubleKey, 0, TRUE, 0, iniEncpasswd.data(), (DWORD *)&iniEncPassLen);
+        printf("%s\n", reinterpret_cast<char*>(iniEncpasswd.data()));
 
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
